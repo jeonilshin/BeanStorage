@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"unicode"
 
+	"github.com/gorilla/context"
+	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -14,6 +16,8 @@ import (
 
 var tpl *template.Template
 var db *sql.DB
+
+var store = sessions.NewCookieStore([]byte("super-secret"))
 
 func main() {
 	tpl, _ = template.ParseGlob("templates/*.html")
@@ -25,9 +29,24 @@ func main() {
 	defer db.Close()
 	http.Handle("/login", loginHandler)
 	http.HandleFunc("/loginauth", loginAuthHandler)
+	http.HandleFunc("/logout", logoutHandler)
 	http.HandleFunc("/register", register)
 	http.HandleFunc("/registerauth", registerAuthHandler)
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/about", Auth(aboutHandler))
+	https.HandleFunc("/", Auth(indexHandler))
+	http.ListenAndServe(":8080", context.ClearHandler(http.DefaultServeMux))
+}
+
+func Auth(HandlerFunc http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		session, _ := store.Get(r, "session")
+		_, ok := session.Values["userID"]
+		if !ok {
+			http.Redirect(w, r, "/login", 302) // StatusFound = 302
+			return
+		}
+		HandlerFunc(w, r)
+	}
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,10 +68,28 @@ func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	if err != nil {
-		fmt.Fprint(w, "You have successfully logged in.")
+		session, _ := store.Get(r, "session")
+		session.Values["userID"] = userID
+		session.Save(r, w)
+		tpl.ExecuteTemplate(w, "index.html", "Logged In")
 		return
 	}
 	tpl.ExecuteTemplate(w, "login.html", "Username or password is correct.")
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "index.html", "Logged In")
+}
+
+function aboutHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "about.html", "Logged In")
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
+	delete(session.Values, "userID")
+	session.Save(r, w)
+	http.ExecuteTemplate(w, "login.html", "Logged Out")
 }
 
 func registerHandler(w http.ResonseWriter, r *http.Request) {
