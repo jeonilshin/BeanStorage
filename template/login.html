@@ -16,6 +16,9 @@
             <div class="wrapper">
                 <form action="/loginauth" method="POST">
                     <h1>Login</h1>
+                    {{if .message}}
+                        <h5>{{.message}}</h5>
+                    {{end}}
                     <div class="input-box">
                         <input type="text" id="username" name="username" placeholder="Username" required>
                         <i class="uil uil-user user"></i>
@@ -38,8 +41,5 @@
             </div>
         </div>
         <script src="script.js"></script>
-        {{if .}}
-            {{.}}
-        {{end}}
     </body>
 </html>

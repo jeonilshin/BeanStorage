@@ -1,0 +1,11 @@
+CREATE TABLE users
+(
+    id INT NOT NULL PRIMARY KEY UNIQUE AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(254) NOT NULL,
+    pswd_hash VARCHAR(70) NOT NULL,
+    created_at DATETIME NOT NULL,
+    is_active TINYINT(1) NOT NULL,
+    ver_hash VARCHAR(500) NOT NULL,
+    timeout DATETIME NOT NULL
+);
