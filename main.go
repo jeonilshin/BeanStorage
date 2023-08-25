@@ -28,13 +28,13 @@ func main() {
 	}
 	defer db.Close()
 	http.Handle("/login", loginHandler)
-	http.HandleFunc("/loginauth", loginAuthHandler)
-	http.HandleFunc("/logout", logoutHandler)
-	http.HandleFunc("/register", register)
-	http.HandleFunc("/registerauth", registerAuthHandler)
-	http.HandleFunc("/about", Auth(aboutHandler))
-	https.HandleFunc("/", Auth(indexHandler))
-	http.ListenAndServe(":8080", context.ClearHandler(http.DefaultServeMux))
+    http.HandleFunc("/loginauth", loginAuthHandler)
+    http.HandleFunc("/logout", logoutHandler)
+    http.HandleFunc("/register", registerHandler)
+    http.HandleFunc("/registerauth", registerAuthHandler)
+    http.HandleFunc("/about", Auth(aboutHandler))
+    http.HandleFunc("/", Auth(indexHandler))
+    http.ListenAndServe(":8080", context.ClearHandler(http.DefaultServeMux))
 }
 
 func Auth(HandlerFunc http.HandlerFunc) http.HandlerFunc {
@@ -54,34 +54,34 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseFrom()
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-	var hash string
-	stmt := "SELECT Hash FROM bcrypt WHERE Username = ?"
-	row := db.QueryRow(stmt, username)
-	err := row.Scan(&hash)
-	if err != nil {
-		tpl.ExecuteTemplate(w, "login.html", "Username or password is incorrect.")
-		return
-	}
+    r.ParseForm()
+    username := r.FormValue("username")
+    password := r.FormValue("password")
+    var hash, userID string
+    stmt := "SELECT Hash, UserID FROM bcrypt WHERE Username = ?"
+    row := db.QueryRow(stmt, username)
+    err := row.Scan(&hash, &userID)
+    if err != nil {
+        tpl.ExecuteTemplate(w, "login.html", "Username or password is incorrect.")
+        return
+    }
 
-	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	if err != nil {
-		session, _ := store.Get(r, "session")
-		session.Values["userID"] = userID
-		session.Save(r, w)
-		tpl.ExecuteTemplate(w, "index.html", "Logged In")
-		return
-	}
-	tpl.ExecuteTemplate(w, "login.html", "Username or password is correct.")
+    err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+    if err != nil {
+        session, _ := store.Get(r, "session")
+        session.Values["userID"] = userID
+        session.Save(r, w)
+        tpl.ExecuteTemplate(w, "index.html", "Logged In")
+        return
+    }
+    tpl.ExecuteTemplate(w, "login.html", "Username or password is correct.")
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "index.html", "Logged In")
 }
 
-function aboutHandler(w http.ResponseWriter, r *http.Request) {
+func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "about.html", "Logged In")
 }
 
@@ -89,16 +89,16 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session")
 	delete(session.Values, "userID")
 	session.Save(r, w)
-	http.ExecuteTemplate(w, "login.html", "Logged Out")
+	tpl.ExecuteTemplate(w, "login.html", "Logged Out")
 }
 
-func registerHandler(w http.ResonseWriter, r *http.Request) {
+func registerHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "register.html", nil)
 }
 
 func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	username := r.FormValue("username")
+    r.ParseForm()
+    username := r.FormValue("username")
 	var nameAlphaNumeric = true
 	for _, char := range username {
 		if !unicode.IsLetter(char) == false && !unicode.IsNumber(char) == flase {
@@ -145,7 +145,7 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 	var hash []byte
 	hash, err = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		tpl.ExecuteTemplate(w, "register.html", "tehre was a problem registering account.")
+		tpl.ExecuteTemplate(w, "register.html", "There was a problem registering account.")
 		return
 	}
 	var insertStmt *sql.Stmt
@@ -167,5 +167,27 @@ func registerAuthHandler(w http.ResponseWriter, r *http.Request) {
 		tpl.ExecuteTemplate(w, "register.html", "Passwords do not match.")
 		return
 	}
-	fmt.Fprint(w, "congrats, your account has been successfully created")
+	userID, err := retrieveUserIDFromDB(username)
+    if err != nil {
+        tpl.ExecuteTemplate(w, "register.html", "There was a problem registering account.")
+        return
+    }
+    session, _ := store.Get(r, "session")
+    session.Values["userID"] = userID
+    session.Save(r, w)
+    http.Redirect(w, r, "/login", http.StatusFound)
+}
+
+func retrieveUserIDFromDB(username string) (string, error) {
+    var userID string
+    stmt := "SELECT UserID FROM bcrypt WHERE username = ?"
+    row := db.QueryRow(stmt, username)
+    err := row.Scan(&userID)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return "", fmt.Errorf("user not found")
+        }
+        return "", err
+    }
+    return userID, nil
 }
