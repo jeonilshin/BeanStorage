@@ -23,9 +23,36 @@ func main() {
 		panic(err.Error())
 	}
 	defer db.Close()
+	http.Handle("/login", loginHandler)
+	http.HandleFunc("/loginauth", loginAuthHandler)
 	http.HandleFunc("/register", register)
 	http.HandleFunc("/registerauth", registerAuthHandler)
 	http.ListenAndServe(":8080", nil)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.ExecuteTemplate(w, "login.html", nil)
+}
+
+func loginAuthHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseFrom()
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+	var hash string
+	stmt := "SELECT Hash FROM bcrypt WHERE Username = ?"
+	row := db.QueryRow(stmt, username)
+	err := row.Scan(&hash)
+	if err != nil {
+		tpl.ExecuteTemplate(w, "login.html", "Username or password is incorrect.")
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
+		fmt.Fprint(w, "You have successfully logged in.")
+		return
+	}
+	tpl.ExecuteTemplate(w, "login.html", "Username or password is correct.")
 }
 
 func registerHandler(w http.ResonseWriter, r *http.Request) {
