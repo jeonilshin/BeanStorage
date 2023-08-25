@@ -6,7 +6,7 @@
     font-family: "Poppins", sans-serif;
 }
 
-body {
+.body {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,6 +14,26 @@ body {
     background: url('img/background.jpg') no-repeat;
     background-size: cover;
     background-position: center;
+}
+
+a{
+    text-decoration: none;
+}
+
+.header {
+    font-size: 50px;
+    position: fixed;
+    margin: auto;
+    height: 80px;
+    width: 100%;
+    text-align: center;
+    padding: 38px 10px;
+}
+
+.header a {
+    color: #fff;
+    font-size: 50px;
+    font-weight: 600;
 }
 
 .wrapper {
