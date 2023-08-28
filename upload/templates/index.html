@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+       <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,13 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bean Storage</title>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@200;300;400;500;600;700&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@200;300;400;500;600;700&display=swap");
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         font-family: "Poppins", sans-serif;
+    }
+    :root {
+        --blue: #0071FF;
+        --light-blue: #B6DBF6;
+        --dark-blue: #005DD1;
+        --grey: #f2f2f2;
+    }
+    .container-body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
     }
     a {
         text-decoration: none;
@@ -57,12 +70,11 @@
         padding: 10px 24px;
         border: 2px solid rgb(0, 100, 250);
         background: transparent;
-        border-radius: 6px;
         cursor: pointer;
         font-size: medium;
     }
     .button:active {
-        transform: scale(0.98);
+        transform: scale(0.96);
     }
     .home {
         position: relative;
@@ -181,7 +193,6 @@
         margin-top: 30px;
         width: 100%;
         padding: 10px 0;
-        border-radius: 10px;
     }
     .ask {
         font-size: 12px;
@@ -190,6 +201,116 @@
     }
     .ask a {
         color: rgb(0, 100, 250);
+    }
+    .btn {
+        position: relative;
+        transition: all 0.4s;
+        overflow: hidden;
+    }
+    .btn:focus {
+        outline: none;
+    }
+    .btn::before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background-color: rgb(0, 100, 250);
+        top: 100%;
+        left: 0;
+        transition: all 0.4s;
+        z-index: -1;
+    }
+    .btn:hover::before {
+        transform: translateY(-100%);
+    }
+    .btn:hover {
+        color: #ffffff
+    }
+    .container-img-part {
+        max-width: 400px;
+        width: 100%;
+        background: #fff;
+        padding: 30px;
+        border-radius: 30px;
+    }
+    .img-area {
+        position: relative;
+        width: 100%;
+        height: 240px;
+        background: var(--grey);
+        margin-bottom: 30px;
+        border-radius: 15px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    .img-area .icon {
+        font-size: 100px;
+    }
+    .img-area h3 {
+        font-size: 20px;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+    .img-area p {
+        color: #999;
+    }
+    .img-area p span {
+        font-weight: 600;
+    }
+    .img-area img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        z-index: 100;
+    }
+    .img-area::before {
+        content: attr(data-img);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, .5);
+        color: #fff;
+        font-weight: 500;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+        opacity: 0;
+        transition: all .3s ease;
+        z-index: 200;
+    }
+    .img-area.active:hover::before {
+        opacity: 1;
+    }
+    .select-image {
+        display: block;
+        width: 100%;
+        padding: 16px 0;
+        border-radius: 15px;
+        background: var(--blue);
+        color: #fff;
+        font-weight: 500;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all .3s ease;
+    }
+    .select-image:hover {
+        background: var(--dark-blue);
+    }
+    .about{
+        background-color: blue;
     }
    </style>
 </head>
@@ -200,17 +321,17 @@
     
             <ul class="nav_items">
                 <li class="nav_item">
-                    <a href="#" class="nav_link">Home</a>
-                    <a href="#" class="nav_link">About</a>
+                    <a href="#home" class="nav_link">Home</a>
+                    <a href="#about" class="nav_link">About</a>
                     <a href="#" class="nav_link">Docs</a>
                     <a href="#" class="nav_link">Contact</a>
                 </li>
             </ul>
-            <button class="button" id="form-open">Set Up Credentials</button>
+            <button class="button btn" id="form-open">Set Up Credentials</button>
         </nav>
     </header>
     
-    <section class="home">
+    <section class="home" id="home">
         <video class="bg-video" autoplay loop muted >
             <source src="https://jeonilshin-storage.s3.ap-northeast-2.amazonaws.com/cloud.mp4" type="video/mp4">
         </video>
@@ -241,9 +362,37 @@
                 </form>
             </div>
         </div>
+        <div class="container-body">
+            <div class="container-img-part">
+                <input type="file" id="file" accept="image/*" hidden>
+                <div class="img-area" data-img="">
+                    <i class='bx bxs-cloud-upload icon'></i>
+                    <h3>Upload Image</h3>
+                    <p>Image size must be less than <span>60MB</span></p>
+                </div>
+                <button class="select-image">Select Image</button>
+            </div>    
+        </div>
+        
+    </section>
+
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <h2>About</h2>
+                <p>Bean Storage is a simple image storage service that uses AWS S3.</p>
+                <p>It is a service that allows you to upload images to AWS S3 and view them.</p>
+                <p>It is a service that allows you to upload images to AWS S3 and view them.</p>
+                <p>It is a service that allows you to upload images to AWS S3 and view them.</p>
+                <p>It is a service that allows you to upload images to AWS S3 and view them.</p>
+            </div>
+        </div>
     </section>
     <script src="https://kit.fontawesome.com/fa6fd3a20d.js" crossorigin="anonymous"></script>
     <script>
+        const selectImage = document.querySelector('.select-image');
+        const inputFile = document.querySelector('#file');
+        const imgArea = document.querySelector('.img-area');
         const formOpenBtn = document.querySelector('#form-open'),
         home = document.querySelector('.home'),
         formContainer = document.querySelector('.form_container'),
@@ -266,6 +415,30 @@
 
         formOpenBtn.addEventListener('click', () => home.classList.add("show"));
         formCloseBtn.addEventListener('click', () => home.classList.remove("show"));
+
+        selectImage.addEventListener('click', function () {
+            inputFile.click();
+        })
+
+        inputFile.addEventListener('change', function () {
+            const image = this.files[0]
+            if(image.size < 60000000) {
+                const reader = new FileReader();
+                reader.onload = ()=> {
+                    const allImg = imgArea.querySelectorAll('img');
+                    allImg.forEach(item=> item.remove());
+                    const imgUrl = reader.result;
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    imgArea.appendChild(img);
+                    imgArea.classList.add('active');
+                    imgArea.dataset.img = image.name;
+                }
+                reader.readAsDataURL(image);
+            } else {
+                alert("Image size more than 2MB");
+            }
+        })
     </script>
 </body>
 </html>
