@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bean Storage</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@200;300;400;500;600;700&display=swap");
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+    a {
+        text-decoration: none;
+    }
+    .header {
+        position: fixed;
+        height: 80px;
+        width: 100%;
+        z-index: 100;
+        padding: 0 20px;
+    }
+    .nav {
+        max-width: 1100px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .nav,
+    .nav_item{
+        display: flex;
+        height: 100%;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 1000;
+    }
+    .nav_logo {
+        font-size: 25px;
+    }
+    .nav_item {
+        column-gap: 25px;
+    }
+    .nav_logo,
+    .button,
+    .nav_link {
+        color: rgb(0, 42, 250);
+    }
+    .nav_link:hover {
+        color: #082a3b;
+    }
+    .button {
+        color: rgb(3, 3, 133);
+        font-weight: 1000;
+        padding: 10px 24px;
+        border: 2px solid rgb(0, 100, 250);
+        background: transparent;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: medium;
+    }
+    .button:active {
+        transform: scale(0.98);
+    }
+    .home {
+        position: relative;
+        height: 100vh;
+        width: 100%;
+    }
+    .bg-video {
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: -1;
+    }
+    .home::before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 100;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.4s ease-out;
+    }
+    .home.show::before {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .form_container {
+        position: absolute;
+        max-width: 320px;
+        width: 100%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(1.2);
+        z-index: 101;
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.4s ease-out;
+    }
+
+    .home.show .form_container {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    .form_close {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 22px;
+        cursor: pointer;
+        color: #0b0217;
+        opacity: 0.7;
+    }
+    .form_container h2 {
+        font-size: 22px;
+        color: #0b0217;
+        text-align: center;
+    }
+    .input_box {
+        position: relative;
+        margin-top: 30px;
+        width: 100%;
+        height: 40px;
+    }
+    .input_box input {
+        height: 100%;
+        width: 100%;
+        outline: none;
+        border: none;
+        padding: 0 30px;
+        color: #333;
+        transition: all 0.2s ease;
+        border-bottom: 1.5px solid #aaaaaa;
+    }
+    .input_box input:focus {
+        border-color: rgb(73, 194, 242);
+    }
+    .input_box i {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+    }
+    .input_box i.secret,
+    .input_box i.bucket,
+    .input_box i.key {
+        left: 0;
+        color: #707070;
+    }
+    .input_box input:focus ~ i.secret,
+    .input_box input:focus ~ i.key,
+    .input_box input:focus ~ i.bucket {
+        color: rgb(73, 194, 242);
+        transition: all 0.2s ease;
+    }
+    .input_box i.pw_hide {
+        right: 0;
+        color: #707070;
+        cursor: pointer;
+    }
+
+    .form_container .button {
+        background: rgb(0, 100, 250);
+        color: #fff;
+        margin-top: 30px;
+        width: 100%;
+        padding: 10px 0;
+        border-radius: 10px;
+    }
+    .ask {
+        font-size: 12px;
+        text-align: center;
+        margin-top: 15px;
+    }
+    .ask a {
+        color: rgb(0, 100, 250);
+    }
+   </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="#" class="nav_logo">Bean Storage</a>
+    
+            <ul class="nav_items">
+                <li class="nav_item">
+                    <a href="#" class="nav_link">Home</a>
+                    <a href="#" class="nav_link">About</a>
+                    <a href="#" class="nav_link">Docs</a>
+                    <a href="#" class="nav_link">Contact</a>
+                </li>
+            </ul>
+            <button class="button" id="form-open">Set Up Credentials</button>
+        </nav>
+    </header>
+    
+    <section class="home">
+        <video class="bg-video" autoplay loop muted >
+            <source src="https://jeonilshin-storage.s3.ap-northeast-2.amazonaws.com/cloud.mp4" type="video/mp4">
+        </video>
+        <div class="form_container">
+            <i class="fa-solid fa-xmark form_close"></i>
+            <div class="form credential_form">
+                <form action="#">
+                    <h2> Save Credential </h2>
+                    <div class="input_box">
+                        <input type="text" placeholder="Enter your Access Key" required/>
+                        <i class="fa-solid fa-key key"></i>
+                    </div>
+                    <div class="input_box">
+                        <input type="password" placeholder="Enter your Secret Access Key" required/>
+                        <i class="fa-solid fa-lock secret"></i>
+                        <i class="fa-solid fa-eye-slash pw_hide"></i>
+                    </div>
+                    <div class="input_box">
+                        <input type="text" placeholder="Enter your Bucket Name" required/>
+                        <i class="fa-solid fa-bucket bucket"></i>
+                    </div>
+
+                    <button class="button">Save Credential</button>
+
+                    <div class="ask">
+                        How to get your credentials? <a href="about" id="ask">Click</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script src="https://kit.fontawesome.com/fa6fd3a20d.js" crossorigin="anonymous"></script>
+    <script>
+        const formOpenBtn = document.querySelector('#form-open'),
+        home = document.querySelector('.home'),
+        formContainer = document.querySelector('.form_container'),
+        formCloseBtn = document.querySelector('.form_close'),
+        askBtn = document.querySelector('#ask'),
+        pwShowHide = document.querySelectorAll('.pw_hide');
+
+        pwShowHide.forEach(icon => {
+            icon.addEventListener('click', () => {
+                let getPwInput = icon.parentElement.querySelector('input');
+                if(getPwInput.type === "password"){
+                    getPwInput.type = "text";
+                    icon.classList.replace("fa-eye-slash", "fa-eye");
+                }else{
+                    getPwInput.type = "password";
+                    icon.classList.replace("fa-eye", "fa-eye-slash");
+                }
+            });
+        });
+
+        formOpenBtn.addEventListener('click', () => home.classList.add("show"));
+        formCloseBtn.addEventListener('click', () => home.classList.remove("show"));
+    </script>
+</body>
+</html>
