@@ -271,29 +271,24 @@
         object-position: center;
         z-index: 100;
     }
-    .img-area::before {
-        content: attr(data-img);
-        position: absolute;
-        top: 0;
-        left: 0;
+    .select-image {
+        display: block;
         width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, .5);
+        padding: 16px 0;
+        border-radius: 15px;
+        background: var(--blue);
         color: #fff;
         font-weight: 500;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        pointer-events: none;
-        opacity: 0;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
         transition: all .3s ease;
-        z-index: 200;
     }
-    .img-area.active:hover::before {
-        opacity: 1;
+    .select-image:hover {
+        background: var(--dark-blue);
     }
-    .select-image {
+    .upload-image {
+        margin-top: 10px;
         display: block;
         width: 100%;
         padding: 16px 0;
@@ -311,6 +306,12 @@
     }
     .about{
         background-color: blue;
+    }
+    .access_key {
+        text-transform: uppercase;
+    }
+    .secret_key {
+        text-transform: uppercase;
     }
    </style>
 </head>
@@ -338,23 +339,27 @@
         <div class="form_container">
             <i class="fa-solid fa-xmark form_close"></i>
             <div class="form credential_form">
-                <form action="#">
+                <form action="/" method="post" enctype="multipart/form-data">
                     <h2> Save Credential </h2>
                     <div class="input_box">
-                        <input type="text" placeholder="Enter your Access Key" required/>
+                        <input type="text" placeholder="ENTER REGION CODE (ap-northeast-2)" name="region" id="region" required/>
+                        <i class="fa-solid fa-globe key"></i>
+                    </div>
+                    <div class="input_box">
+                        <input type="text" placeholder="ENTER ACCESS KEY" name="access_key" id="access_key" class="access_key" required/>
                         <i class="fa-solid fa-key key"></i>
                     </div>
                     <div class="input_box">
-                        <input type="password" placeholder="Enter your Secret Access Key" required/>
+                        <input type="password" placeholder="ENTER SECRET KEY" name="secret_key" id="secret_key" class="secret_key" required/>
                         <i class="fa-solid fa-lock secret"></i>
                         <i class="fa-solid fa-eye-slash pw_hide"></i>
                     </div>
                     <div class="input_box">
-                        <input type="text" placeholder="Enter your Bucket Name" required/>
+                        <input type="text" placeholder="ENTER BUCKET NAME" name="bucket_name" id="bucket_name" required/>
                         <i class="fa-solid fa-bucket bucket"></i>
                     </div>
 
-                    <button class="button">Save Credential</button>
+                    <button class="button" onclick="saveCredentials()">Save Credential</button>
 
                     <div class="ask">
                         How to get your credentials? <a href="about" id="ask">Click</a>
@@ -364,33 +369,24 @@
         </div>
         <div class="container-body">
             <div class="container-img-part">
-                <input type="file" id="file" accept="image/*" hidden>
-                <div class="img-area" data-img="">
+                    <div class="img-area" data-img="">
                     <i class='bx bxs-cloud-upload icon'></i>
-                    <h3>Upload Image</h3>
-                    <p>Image size must be less than <span>60MB</span></p>
-                </div>
-                <button class="select-image">Select Image</button>
+                    <h3 class="upload-file">Upload File</h3>
+                    <p class="message-90">File size must be less than <span>90MB</span></p>
+                    </div>
+                    <button class="select-image">Select File</button>
+                <form action="/" method="POST" enctype="multipart/form-data">
+                    <input type="file" id="file" name="image" hidden>
+                    <input type="Submit" class="upload-image" value="Upload">
+                </form>
             </div>    
-        </div>
-        
-    </section>
-
-    <section class="about" id="about">
-        <div class="container">
-            <div class="about-content">
-                <h2>About</h2>
-                <p>Bean Storage is a simple image storage service that uses AWS S3.</p>
-                <p>It is a service that allows you to upload images to AWS S3 and view them.</p>
-                <p>It is a service that allows you to upload images to AWS S3 and view them.</p>
-                <p>It is a service that allows you to upload images to AWS S3 and view them.</p>
-                <p>It is a service that allows you to upload images to AWS S3 and view them.</p>
-            </div>
         </div>
     </section>
     <script src="https://kit.fontawesome.com/fa6fd3a20d.js" crossorigin="anonymous"></script>
     <script>
+        const message = document.querySelector('.message-90');
         const selectImage = document.querySelector('.select-image');
+        const uploadFile = document.querySelector('.upload-file');
         const inputFile = document.querySelector('#file');
         const imgArea = document.querySelector('.img-area');
         const formOpenBtn = document.querySelector('#form-open'),
@@ -421,24 +417,76 @@
         })
 
         inputFile.addEventListener('change', function () {
-            const image = this.files[0]
-            if(image.size < 60000000) {
-                const reader = new FileReader();
-                reader.onload = ()=> {
-                    const allImg = imgArea.querySelectorAll('img');
-                    allImg.forEach(item=> item.remove());
-                    const imgUrl = reader.result;
-                    const img = document.createElement('img');
-                    img.src = imgUrl;
-                    imgArea.appendChild(img);
-                    imgArea.classList.add('active');
-                    imgArea.dataset.img = image.name;
-                }
-                reader.readAsDataURL(image);
-            } else {
-                alert("Image size more than 2MB");
+            const file = this.files[0];
+            const maxFileSize = 90 * 1024 * 1024;
+
+            if (file.size > maxFileSize) {
+                alert('File size exceeds the maximum limit of 90MB.');
+                this.value = '';
+                return;
             }
-        })
+
+            message.style.display = 'none';
+            selectImage.style.display = 'none';
+            uploadFile.style.display = 'none';
+
+            const fileInfo = {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+            };
+            const allImg = imgArea.querySelectorAll('img');
+            allImg.forEach(item => item.remove());
+
+            const fileDetails = document.createElement('div');
+            fileDetails.classList.add('file-details');
+            fileDetails.innerHTML = `
+                <p><strong>Name:</strong> ${fileInfo.name}</p>
+                <p><strong>Size:</strong> ${fileInfo.size} bytes</p>
+                <p><strong>Type:</strong> ${fileInfo.type}</p>
+            `;
+            imgArea.appendChild(fileDetails);
+            imgArea.classList.add('active');
+        });
+
+        document.querySelector('.upload-image').addEventListener('click', function () {
+            const formData = new FormData();
+            formData.append('image', inputFile.files[0]);
+
+            fetch('/', {
+                method: 'POST',
+                body: formData,
+            })
+        });
+        function saveCredentials() {
+            const region = document.getElementById('region').value;
+            const accessKey = document.getElementById('access_key').value;
+            const secretKey = document.getElementById('secret_key').value;
+            const bucketName = document.getElementById('bucket_name').value;
+
+            const formData = {
+                region: region,
+                accessKey: accessKey,
+                secretKey: secretKey,
+                bucketName: bucketName,
+            };
+
+            fetch('/save-credentials', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            }).then(response => {
+                if (response.ok) {
+                    alert('Credentials saved successfully.');
+                } else {
+                    alert('Failed to save credentials.');
+                }
+            }).catch(error => {
+                console.error('Error saving credentials:', error);
+            });
+        }
     </script>
 </body>
 </html>
