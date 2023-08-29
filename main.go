@@ -18,9 +18,11 @@ import (
 
 func main() {
 	err := godotenv.Load()
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
     r := gin.Default()
     r.Use(cors.Default())
 
@@ -59,26 +61,27 @@ func main() {
 			return
 		}
 
-		_, err = uploader.Upload(context.TODO(), &s3.PutObjectInput{
-			Bucket: aws.String(os.Getenv("AWS_BUCKET_NAME")),
+		_, uploadErr := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+			Bucket: aws.String("os.Getenv("AWS_BUCKET_NAME")"),
 			Key:    aws.String(file.Filename),
 			Body:   f,
 			ACL:	"public-read",
 		})
 
-		if err != nil {
+		if uploadErr != nil {
 			c.HTML(http.StatusOK, "index.html", gin.H{
 				"error": "Failed to upload file",
 			})
 			return
 		}
 
-		c.Redirect(http.StatusSeeOther, "/success")
+		c.HTML(http.StatusOK, "success.html", gin.H{})
 	})
 
 	r.GET("/success", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "success.html", gin.H{})
 	})
+
 	r.POST("/save-credentials", func(c *gin.Context) {
 		var formData struct {
 			Region     string `json:"region"`
@@ -105,5 +108,5 @@ func main() {
 	
 		c.JSON(http.StatusOK, gin.H{"message": "Credentials saved successfully"})
 	})
-	r.Run(":8080")
+	r.Run()
 }
