@@ -62,7 +62,7 @@ func main() {
 		}
 
 		_, uploadErr := uploader.Upload(context.TODO(), &s3.PutObjectInput{
-			Bucket: aws.String("os.Getenv("AWS_BUCKET_NAME")"),
+			Bucket: aws.String(os.Getenv("AWS_BUCKET_NAME")),
 			Key:    aws.String(file.Filename),
 			Body:   f,
 			ACL:	"public-read",
