@@ -1,12 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Successfully</title>
+  <title>Upload Page</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #popup {
+      display: none;
+      position: fixed;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 0;
+      border-radius: 200px;
+    }
+    #myVideo {
+      width: 100%;
+      height: 100%;
+      border-radius: 300px;
+    }
+    #successMessage {
+      display: none;
+      font-size: 36px;
+      color: green;
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      opacity: 0;
+      transition: opacity 2s;
+    }
+    #closeButton {
+  position: absolute;
+  top: 100px;  /* 위에서 얼마나 떨어져 있는지 */
+  right: 100px;  /* 오른쪽에서 얼마나 떨어져 있는지 */
+  cursor: pointer;
+  font-size: 24px;  /* 글자 크기를 더 크게 */
+}
+
+  </style>
 </head>
 <body>
-    <h1>Successful</h1>
+
+  <button id="uploadButton">Upload</button>
+
+  <div id="popup">
+    <div id="closeButton">X</div>
+    <video id="myVideo" preload="metadata">
+      <source src="src/successful.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div id="successMessage">Successful</div>
+  </div>
+
+  <script>
+    var popup = document.getElementById("popup");
+    var video = document.getElementById("myVideo");
+    var successMessage = document.getElementById("successMessage");
+    var closeButton = document.getElementById("closeButton");
+
+    video.addEventListener('loadedmetadata', function() {
+      var newWidth = video.videoWidth;
+      var newHeight = video.videoHeight + 50;
+
+      popup.style.width = `${newWidth}px`;
+      popup.style.height = `${newHeight}px`;
+      popup.style.left = `50%`;
+      popup.style.top = `50%`;
+      popup.style.transform = `translate(-50%, -50%)`;
+    });
+
+    document.getElementById("uploadButton").addEventListener("click", function() {
+      popup.style.display = "block";
+      video.play();
+
+      video.addEventListener("ended", function() {
+        successMessage.style.display = "block";
+        setTimeout(function() {
+          successMessage.style.opacity = "1";
+        }, 0);
+      });
+    });
+
+    closeButton.addEventListener("click", function() {
+      popup.style.display = "none";
+      video.pause();
+      video.currentTime = 0;
+      successMessage.style.display = "none";
+      successMessage.style.opacity = "0";
+    });
+  </script>
+
 </body>
 </html>
