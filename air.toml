@@ -1,0 +1,13 @@
+root = "."
+tmp_dir = "tmp"
+build_args = ["-o", "tmp/main"]
+ignored_dirs = ["tmp", "vendor"]
+
+[build]
+  bin = "tmp/main"
+  exclude_dir = "vendor"
+
+[[watcher]]
+  paths = [".", "templates", ".env"]
+  include_exts = ["go", "html", "env"]
+  exclude_paths = ["tmp/*", "vendor/*"]
