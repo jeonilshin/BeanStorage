@@ -1,6 +1,6 @@
 module beanstorage.com
 
-go 1.21.0
+go 1.21
 
 require (
 	dario.cat/mergo v1.0.0 // indirect

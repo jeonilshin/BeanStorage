@@ -1,97 +1,177 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Upload Page</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
-    #popup {
-      display: none;
-      position: fixed;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 0;
-      border-radius: 200px;
-    }
-    #myVideo {
-      width: 100%;
-      height: 100%;
-      border-radius: 300px;
-    }
-    #successMessage {
-      display: none;
-      font-size: 36px;
-      color: green;
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      opacity: 0;
-      transition: opacity 2s;
-    }
-    #closeButton {
-  position: absolute;
-  top: 100px;  /* 위에서 얼마나 떨어져 있는지 */
-  right: 100px;  /* 오른쪽에서 얼마나 떨어져 있는지 */
-  cursor: pointer;
-  font-size: 24px;  /* 글자 크기를 더 크게 */
-}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bean Storage - Upload Successfully</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
 
-  </style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .message {
+            font-size: 6vw;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .button {
+            font-size: 30px;
+            padding: 10px 30px;
+            border-radius: 30px;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            background-color: #2a83e8;
+            transition: all 0.2s ease;
+        }
+
+        .button:active {
+            transform: scale(0.96);
+        }
+
+        .button:before,
+        .button:after {
+            position: absolute;
+            content: "";
+            width: 150%;
+            left: 50%;
+            height: 100%;
+            transform: translateX(-50%);
+            z-index: -1000;
+            background-repeat: no-repeat;
+        }
+
+        .button.animate::before {
+            top: -70%;
+            background-image: radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, transparent 20%, #2a83e8 20%, transparent 30%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, transparent 10%, #2a83e8 15%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%);
+            background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%, 10% 10%, 18% 18%;
+            animation: greentopBubbles ease-in-out 0.6s forwards infinite;
+        }
+
+        @keyframes greentopBubbles {
+            0% {
+                background-position: 5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%,
+                40% 90%, 55% 90%, 70% 90%;
+            }
+
+            50% {
+                background-position: 0% 80%, 0% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%,
+                50% 50%, 65% 20%, 90% 30%;
+            }
+
+            100% {
+                background-position: 0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%,
+                50% 40%, 65% 10%, 90% 20%;
+                background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+            }
+        }
+
+        .button.animate::after {
+            bottom: -70%;
+            background-image: radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, transparent 10%, #2a83e8 15%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%),
+                radial-gradient(circle, #2a83e8 20%, transparent 20%);
+            background-size: 15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+            animation: greenbottomBubbles ease-in-out 0.6s forwards infinite;
+        }
+
+        @keyframes greenbottomBubbles {
+            0% {
+                background-position: 10% -10%, 30% 10%, 55% -10%, 70% -10%, 85% -10%,
+                70% -10%, 70% 0%;
+            }
+
+            50% {
+                background-position: 0% 80%, 20% 80%, 45% 60%, 60% 100%, 75% 70%, 95% 60%,
+                105% 0%;
+            }
+
+            100% {
+                background-position: 0% 90%, 20% 90%, 45% 70%, 60% 110%, 75% 80%, 95% 70%,
+                110% 10%;
+                background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+            }
+        }
+        h2 {
+          position: relative;
+          color: white;
+          -webkit-text-stroke: 0.2vw #527192;
+        }
+        h2::before {
+          content: attr(data-text);
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 0;
+          height: 100%;
+          color: #2a83e8;
+          -webskit-text-stroke: 0vw #383d52;
+          border-right: 7px solid #2a83e8;
+          overflow: hidden;
+          animation: animate 5s linear infinite;
+        }
+        @keyframes animate {
+          0%,10%,100% {
+            width: 0;
+          }
+          70%,90% {
+            width: 100%;
+          }
+        }
+    </style>
 </head>
 <body>
-
-  <button id="uploadButton">Upload</button>
-
-  <div id="popup">
-    <div id="closeButton">X</div>
-    <video id="myVideo" preload="metadata">
-      <source src="https://jeonilshin-storage.s3.ap-northeast-2.amazonaws.com/successful.mp4" type="video/mp4">
-      Your browser does not support the video tag.
+    <h2 class="message" data-text="Success!">Success!</h2>
+    <video width="400" height="400" autoplay muted id="myVideo">
+        <source src="https://jeonilshin-storage.s3.ap-northeast-2.amazonaws.com/plant.mp4" type="video/mp4">
     </video>
-    <div id="successMessage">Successful</div>
-  </div>
+    <button src="/" class="button">Back Home</button>
+    <script>
+        const button = document.querySelector(".button");
 
-  <script>
-    var popup = document.getElementById("popup");
-    var video = document.getElementById("myVideo");
-    var successMessage = document.getElementById("successMessage");
-    var closeButton = document.getElementById("closeButton");
-
-    video.addEventListener('loadedmetadata', function() {
-      var newWidth = video.videoWidth;
-      var newHeight = video.videoHeight + 50;
-
-      popup.style.width = `${newWidth}px`;
-      popup.style.height = `${newHeight}px`;
-      popup.style.left = `50%`;
-      popup.style.top = `50%`;
-      popup.style.transform = `translate(-50%, -50%)`;
-    });
-
-    document.getElementById("uploadButton").addEventListener("click", function() {
-      popup.style.display = "block";
-      video.play();
-
-      video.addEventListener("ended", function() {
-        successMessage.style.display = "block";
-        setTimeout(function() {
-          successMessage.style.opacity = "1";
-        }, 0);
-      });
-    });
-
-    closeButton.addEventListener("click", function() {
-      popup.style.display = "none";
-      video.pause();
-      video.currentTime = 0;
-      successMessage.style.display = "none";
-      successMessage.style.opacity = "0";
-    });
-  </script>
-
+        button.addEventListener("click", (e) => {
+            e.preventDefault();
+            button.classList.add("animate");
+            setTimeout(() => {
+                button.classList.remove("animate");
+            }, 600);
+        });
+    </script>
+    <script>
+        const video = document.getElementById("myVideo");
+    
+        // Set the playback rate to 0.5 for half speed
+        video.playbackRate = 0.7;
+    </script>
+    
 </body>
 </html>
