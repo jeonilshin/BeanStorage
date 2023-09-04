@@ -1,11 +1,11 @@
 package main
 
 import (
-	"context"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"context"
 	"os"
+	"io/ioutil"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("./env/env.go")
 
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -95,12 +95,13 @@ func main() {
 			return
 		}
 
-		content := "AWS_REGION=" + formData.Region + "\n" +
-			"AWS_ACCESS_KEY_ID=" + formData.AccessKey + "\n" +
-			"AWS_SECRET_ACCESS_KEY=" + formData.SecretKey + "\n" +
-			"AWS_BUCKET_NAME=" + formData.BucketName + "\n"
+		content := `AWS_REGION=` + formData.Region + `
+AWS_ACCESS_KEY_ID=` + formData.AccessKey + `
+AWS_SECRET_ACCESS_KEY=` + formData.SecretKey + `
+AWS_BUCKET_NAME=` + formData.BucketName + `
+`
 
-		err := ioutil.WriteFile(".env", []byte(content), 0644)
+		err := ioutil.WriteFile("./env/env.go", []byte(content), 0644)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save credentials"})
 			return

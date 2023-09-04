@@ -8,6 +8,6 @@ ignored_dirs = ["tmp", "vendor"]
   exclude_dir = "vendor"
 
 [[watcher]]
-  paths = [".", "templates", ".env"]
+  paths = [".", "templates", "env"]
   include_exts = ["go", "html", "env"]
   exclude_paths = ["tmp/*", "vendor/*"]
